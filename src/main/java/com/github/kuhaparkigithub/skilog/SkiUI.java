@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 /**
@@ -55,9 +56,8 @@ public class SkiUI extends Application {
         hBox.setPadding(new Insets(10, 10, 10, 10));
 
         // Toiminnallisuus uusiLenkki-Buttonille
-        uusiLenkki.setOnAction(e -> {
 
-        });
+
 
         // TextArean luominen
         TextArea tekstiAlueKeskelle = new TextArea();
@@ -67,17 +67,24 @@ public class SkiUI extends Application {
 
 
         ArrayList<String> lenkkiID = new ArrayList<String>();
-        for (int i = 0; i < new SkiKilometerMain().lenkkienMaara; i++) {
-            if (new SkiKilometerMain().lenkit[i].getPvm() != null) {
-                lenkkiID.add("Lenkki: " + new SkiKilometerMain().lenkit[i].getPvm());
+        for (int i = 0; i < new SkiKilometerMain().lenkit.size(); i++) {
+            if (new SkiKilometerMain().lenkit.get(i).getPvm() != null) {
+                lenkkiID.add("Lenkki: " + new SkiKilometerMain().lenkit.get(i).getPvm());
+                System.out.println("Ifissä");
             }
             else {
                 lenkkiID.add("Lenkki: " + i);
+                System.out.println("Elsessä");
             }
         }
 
         ListView<String> lv = new ListView<>(FXCollections.observableArrayList(lenkkiID));
 
+        uusiLenkki.setOnAction(e -> {
+            lenkkiID.addLast("str");
+            System.out.println("Pöö");
+        });
+        // Pitäisi saada ListView näyttämään uusi olio ListViewissä, kun painaa "Uusi lenkki" -buttonia.
         lv.getSelectionModel().selectedItemProperty().addListener(ov -> {
             for (String str : lv.getSelectionModel().getSelectedItems()) {
 

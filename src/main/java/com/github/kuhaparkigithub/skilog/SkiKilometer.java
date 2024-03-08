@@ -45,9 +45,13 @@ public class SkiKilometer implements Serializable {
     }
 
     /**
-     * Parametriton alustaja
+     * Olion kopioiva SkiKilometer alustaja
      */
-    public SkiKilometer() {
+    public SkiKilometer(SkiKilometer lenkki) {
+        this.kilometrit = lenkki.getKilometrit();
+        this.pvm = lenkki.getPvm();
+        this.sijainti = lenkki.getSijainti();
+        this.kommentit = lenkki.getKommentit();
     }
 
     /**
