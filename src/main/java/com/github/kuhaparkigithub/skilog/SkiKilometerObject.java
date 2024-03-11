@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 /**
- * Tässä luokassa on ohjelman toiminnallisuus määritelty, sekä pääohjelma.
+ * Tässä luokassa on ohjelman toiminnallisuus ja tiedostonkäsittely määritelty.
  */
 public class SkiKilometerObject {
 
