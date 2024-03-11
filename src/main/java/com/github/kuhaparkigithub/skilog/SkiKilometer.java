@@ -2,7 +2,6 @@ package com.github.kuhaparkigithub.skilog;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
 /**
  * Tämä on olioluokka hiihtokilometriohjelmaa varten.
@@ -32,12 +31,13 @@ public class SkiKilometer implements Serializable {
 
     private int totalKm;
 
+
     /**
      * Alustaja, joka ottaa ottaa parametrinaan kilometrit, päivämäärän, sijainnin ja kommentit.
-     * @param kilometrit
-     * @param pvm
-     * @param sijainti
-     * @param kommentit
+     * @param kilometrit desimaalilukuarvo, joka kuvastaa kilometrien määrää
+     * @param pvm LocalDate-luokan olio, joka kuvastaa päivämäärää
+     * @param sijainti Merkkijono, joka kuvastaa hiihtolenkin sijaintia
+     * @param kommentit Merkkijono, joka kuvastaa kommenttejä hiihtolenkistä
      */
     public SkiKilometer(double kilometrit, LocalDate pvm, String sijainti, String kommentit) {
         this.kilometrit = kilometrit;
@@ -46,8 +46,10 @@ public class SkiKilometer implements Serializable {
         this.kommentit = kommentit;
     }
 
+
     /**
-     * Olion kopioiva SkiKilometer alustaja
+     * Olion kopioiva alustaja
+     * @param lenkki SkiKilometer-tyyppinen olio
      */
     public SkiKilometer(SkiKilometer lenkki) {
         this.kilometrit = lenkki.getKilometrit();
@@ -56,34 +58,37 @@ public class SkiKilometer implements Serializable {
         this.kommentit = lenkki.getKommentit();
     }
 
+
     /**
      * Palauttaa kilometrit
-     * @return
+     * @return palauttaa desimaaliluvun, joka kuvastaa kilometrejä
      */
     public double getKilometrit() {
         return kilometrit;
     }
 
+
     /**
      * Asettaa kilometrit
-     * @param kilometrit
+     * @param kilometrit desimaaliluku, joka kuvastaa kilometrejä
      */
     public void setKilometrit(double kilometrit) {
         this.kilometrit = kilometrit;
     }
 
+
     /**
      * Palauttaa päivämäärän
-     *
-     * @return
+     * @return Palauttaa LocalDate-tyyppisen olion, joka kuvastaa päivämäärää
      */
     public LocalDate getPvm() {
         return pvm;
     }
 
+
     /**
      * Asettaa päivämäärän
-     * @param pvm
+     * @param pvm LocalDate-tyyppinen olio, joka kuvastaa päivämäärää
      */
     public void setPvm(LocalDate pvm) {
         this.pvm = pvm;
@@ -91,7 +96,7 @@ public class SkiKilometer implements Serializable {
 
     /**
      * Palauttaa sijainnin
-     * @return
+     * @return Palauttaa merkkijonon, joka kuvastaa hiihtolenkin sijaintia
      */
     public String getSijainti() {
         return sijainti;
@@ -99,7 +104,7 @@ public class SkiKilometer implements Serializable {
 
     /**
      * Asettaa sijainnin
-     * @param sijainti
+     * @param sijainti Merkkijono, joka kuvastaa hiihtolenkin sijaintia
      */
     public void setSijainti(String sijainti) {
         this.sijainti = sijainti;
@@ -107,7 +112,7 @@ public class SkiKilometer implements Serializable {
 
     /**
      * Palauttaa kommentit
-     * @return
+     * @return Palauttaa merkkijonon, joka kuvastaa kommentteja
      */
     public String getKommentit() {
         return kommentit;
@@ -115,11 +120,12 @@ public class SkiKilometer implements Serializable {
 
     /**
      * Asettaa kommentit
-     * @param kommentit
+     * @param kommentit Merkkijono, joka kuvastaa hiihtolenkistä annettuna kommentteja
      */
     public void setKommentit(String kommentit) {
         this.kommentit = kommentit;
     }
+
 
     /**
      * Metodi laskee kokonaisuudessaan hiihdetyt kilometrit yhteen. Samankaltainen metodi on Pankkitililuokan
