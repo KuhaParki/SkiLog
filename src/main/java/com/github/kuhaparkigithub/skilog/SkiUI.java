@@ -3,13 +3,15 @@ package com.github.kuhaparkigithub.skilog;
 /*
 Lisättäviä ominaisuuksia:
 - Automaagisesti päivittyvä ListView
-- Kokoomatiedot
+- Kokoomatiedot -- tehty
 - Lenkin poistaminen -- tehty
+- Aseta-Buttoniin poistumisominaisuus -- tehty
  */
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -30,6 +32,10 @@ import java.util.Objects;
  */
 public class SkiUI extends Application {
 
+    /**
+     * start-metodi aloittaa käyttöliittymän graafisten komponenttien näyttämisen
+     * @param primaryStage Ottaa parametrinaan primaryStagen, joka toimii pohjana kaikelle
+     */
     @Override
     public void start(Stage primaryStage) {
         // Luodaan BorderPane
@@ -48,18 +54,35 @@ public class SkiUI extends Application {
         TextArea tekstiAlueKeskelle = new TextArea();
         tekstiAlueKeskelle.setMaxSize(500, 800);
 
-        // Luodaan näkymä eri hiihtolenkeille ohjelmaan. Samankaltainen ratkaisu löytyy viikon 7 tehtävästä 6
+        // Luodaan näkymä eri hiihtolenkeille ohjelmaan. Mallin ObservableListiin katsoin Javan manuaalista seuraavasta
+        // linkistä: https://openjfx.io/javadoc/11/javafx.controls/javafx/scene/control/ListView.html
 
-        ArrayList<String> lenkkiID = new ArrayList<String>();
+        ObservableList<String> lenkkiID = FXCollections.observableArrayList();
         for (int i = 0; i < new SkiKilometerMain().lenkit.size(); i++) {
             lenkkiID.add(i, "Lenkki " + (i + 1));
         }
-        
-        ListView<String> lv = new ListView<>(FXCollections.observableArrayList(lenkkiID));
+
+        ListView<String> lv = new ListView<String>(lenkkiID);
+
+        lv.getSelectionModel().selectedItemProperty().addListener(ov -> {
+            for (String str : lv.getSelectionModel().getSelectedItems()) {
+                for (int i = 0; i < lenkkiID.size(); i++) {
+                    if(Objects.equals(str, ("Lenkki " + (i + 1)))){
+                        tekstiAlueKeskelle.setText(new SkiKilometerMain().lenkinTiedot(i));
+                        int finalI = i;
+                        poistaLenkki.setOnAction(eve -> {
+                            new SkiKilometerMain().poistaLenkki(finalI);
+                            lenkkiID.remove("Lenkki " + (finalI + 1));
+                        });
+                    }
+                }
+            }
+        });
 
         // uusiLenkki-Buttonin toiminnallisuus. Katsottu uuden ikkunan tekemiseen vinkkiä sivustolta:
         // https://stackoverflow.com/questions/15041760/javafx-open-new-window
         uusiLenkki.setOnAction(e -> {
+            Stage stage = new Stage();
 
             BorderPane borderPane1 = new BorderPane();
             // Luodaan HBox
@@ -90,18 +113,28 @@ public class SkiUI extends Application {
             aseta.setOnAction(event -> {
                 new SkiKilometerMain().uusiLenkkiListaan(new SkiKilometer(Double.parseDouble(kmTextField.getText()),
                         LocalDate.parse(pvmTextField.getText()), sijaintiTextField.getText(), kommentitTextArea.getText()));
+                lenkkiID.addLast("Lenkki " + (new SkiKilometerMain().lenkit.size()));
+                BorderPane borderPane3 = new BorderPane();
+                Label asetusOnnistui = new Label("Asetus onnistui, voit sulkea ikkunan");
+                borderPane3.setCenter(asetusOnnistui);
+                Scene scene = new Scene(borderPane3, 500, 500);
+                stage.setScene(scene);
+                stage.setTitle("Asetus onnistui!");
+                stage.show();
             });
 
-            aseta.setAlignment(Pos.BASELINE_LEFT);
+            // Syötetään borderPane1lle aseta-Button ja vBox
             borderPane1.setCenter(aseta);
             borderPane1.setRight(vBox);
 
-            Stage stage = new Stage();
+            // Määritellään uuden ikkunan avautuminen
             stage.setTitle("Hiihtolenkin tiedot");
             stage.setScene(new Scene(borderPane1, 500, 500));
             stage.show();
         });
 
+        // yhteenveto-Buttonin toiminnallisuus. Näyttää uudessa ikkunassa kilometrit yhteensä, lenkkien määrän sekä
+        // keskimääräisen lenkin pituuden
         yhteenveto.setOnAction(e -> {
             BorderPane borderPane2 = new BorderPane();
             double total = 0;
@@ -123,31 +156,24 @@ public class SkiUI extends Application {
             stage.show();
         });
 
-        // Pitäisi saada ListView näyttämään uusi olio ListViewissä, kun painaa "Uusi lenkki" -buttonia.
-        lv.getSelectionModel().selectedItemProperty().addListener(ov -> {
-            for (String str : lv.getSelectionModel().getSelectedItems()) {
-                for (int i = 0; i < lenkkiID.size(); i++) {
-                    if(Objects.equals(str, ("Lenkki " + (i + 1)))){
-                        tekstiAlueKeskelle.setText(new SkiKilometerMain().lenkinTiedot(i));
-                        int finalI = i;
-                        poistaLenkki.setOnAction(eve -> {
-                            new SkiKilometerMain().poistaLenkki(finalI);
-                        });
-                    }
-                }
-            }
-        });
+
 
         // Osien asettelua BorderPaneen
         borderPane.setCenter(tekstiAlueKeskelle);
         borderPane.setLeft(lv);
         borderPane.setTop(hBox);
 
+        // Ikkunan määrittelyä
         Scene scene = new Scene(borderPane, 1000, 1000);
         primaryStage.setTitle("Hiihtokilometrisovellus");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    /**
+     * Pääohjelma graafiselle käyttöliittymälle
+     * @param args Vakioargumentti
+     */
     public static void main(String[] args) {
         launch(args);
     }
