@@ -10,9 +10,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 /**
@@ -21,7 +24,8 @@ import java.util.Objects;
 public class SkiUI extends Application {
 
     /**
-     * start-metodi aloittaa käyttöliittymän graafisten komponenttien näyttämisen
+     * start-metodi aloittaa käyttöliittymän graafisten komponenttien näyttämisen. ListViewin yhteydessä käytetty
+     * poikkeustenkäsittelyä. Poikkeustenkäsittelyä voi odottaa, jos asettaa päivämäärän tai kilometrit väärässä muodossa.
      * @param primaryStage Ottaa parametrinaan primaryStagen, joka toimii pohjana kaikelle
      */
     @Override
@@ -42,6 +46,7 @@ public class SkiUI extends Application {
 
         // TextArean luominen
         TextArea tekstiAlueKeskelle = new TextArea();
+        tekstiAlueKeskelle.setEditable(false);
         tekstiAlueKeskelle.setMaxSize(500, 800);
 
 
@@ -102,16 +107,40 @@ public class SkiUI extends Application {
             // aseta-Buttonin toiminnallisuus
             Button aseta = new Button("Aseta tiedot");
             aseta.setOnAction(event -> {
-                new SkiKilometerObject().uusiLenkkiListaan(new SkiKilometer(Double.parseDouble(kmTextField.getText()),
-                        LocalDate.parse(pvmTextField.getText()), sijaintiTextField.getText(), kommentitTextArea.getText()));
-                lenkkiID.addLast("Lenkki " + (new SkiKilometerObject().lenkit.size()));
-                BorderPane borderPane3 = new BorderPane();
-                Label asetusOnnistui = new Label("Asetus onnistui, voit sulkea ikkunan");
-                borderPane3.setCenter(asetusOnnistui);
-                Scene scene = new Scene(borderPane3, 500, 500);
-                stage.setScene(scene);
-                stage.setTitle("Asetus onnistui!");
-                stage.show();
+                try {
+                    if (Objects.equals(kmTextField.getText(), "") || Objects.equals(pvmTextField.getText(), "") ||
+                            Objects.equals(sijaintiTextField.getText(), "") ||
+                            Objects.equals(kommentitTextArea.getText(), "")) {
+                        Label virhe = new Label("Kaikkiin kenttiin tulee syöttää tietoa!");
+                        virhe.setFont(Font.font(20));
+                        virhe.setTextFill(Color.RED);
+                        borderPane1.setBottom(virhe);
+                    }
+                    else {
+                        new SkiKilometerObject().uusiLenkkiListaan(new SkiKilometer(Double.parseDouble(kmTextField.getText()),
+                                LocalDate.parse(pvmTextField.getText()), sijaintiTextField.getText(), kommentitTextArea.getText()));
+                        lenkkiID.addLast("Lenkki " + (new SkiKilometerObject().lenkit.size()));
+                        BorderPane borderPane3 = new BorderPane();
+                        Label asetusOnnistui = new Label("Asetus onnistui, voit sulkea ikkunan");
+                        borderPane3.setCenter(asetusOnnistui);
+                        Scene scene = new Scene(borderPane3, 500, 500);
+                        stage.setScene(scene);
+                        stage.setTitle("Asetus onnistui!");
+                        stage.show();
+                    }
+                }
+                catch (NumberFormatException ex) {
+                    Label intVirhe = new Label("Kilometrien tulee olla numeraalinen!");
+                    intVirhe.setFont(Font.font(20));
+                    intVirhe.setTextFill(Color.RED);
+                    borderPane1.setBottom(intVirhe);
+                }
+                catch (DateTimeParseException exception) {
+                    Label intVirhe = new Label("Tarkista päivämäärän muotoilu! (VVVV-KK-PP)");
+                    intVirhe.setFont(Font.font(20));
+                    intVirhe.setTextFill(Color.RED);
+                    borderPane1.setBottom(intVirhe);
+                }
             });
 
             // Syötetään borderPane1lle aseta-Button ja vBox
