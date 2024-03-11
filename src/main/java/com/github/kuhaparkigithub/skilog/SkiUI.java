@@ -1,15 +1,6 @@
 package com.github.kuhaparkigithub.skilog;
 
-/*
-Lisättäviä ominaisuuksia:
-- Automaagisesti päivittyvä ListView
-- Kokoomatiedot -- tehty
-- Lenkin poistaminen -- tehty
-- Aseta-Buttoniin poistumisominaisuus -- tehty
- */
-
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -18,13 +9,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
