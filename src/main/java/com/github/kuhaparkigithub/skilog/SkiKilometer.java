@@ -7,8 +7,8 @@ import java.util.Date;
 /**
  * Tämä on olioluokka hiihtokilometriohjelmaa varten.
  */
-
 public class SkiKilometer implements Serializable {
+
     /**
      * kilometrit desimaalilukuna
      */
@@ -29,6 +29,8 @@ public class SkiKilometer implements Serializable {
      * Kommentit lenkistä merkkijonona
      */
     private String kommentit;
+
+    private int totalKm;
 
     /**
      * Alustaja, joka ottaa ottaa parametrinaan kilometrit, päivämäärän, sijainnin ja kommentit.
@@ -126,7 +128,7 @@ public class SkiKilometer implements Serializable {
      */
     public void lisaaKilometriSummaan(double maara) {
         if (maara > 0) {
-            this.kilometrit += maara;
+            this.totalKm += maara;
         }
         else {
             System.out.println("Kilometrimäärän tulee olla positiivinen!");

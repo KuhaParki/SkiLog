@@ -1,6 +1,14 @@
 package com.github.kuhaparkigithub.skilog;
 
+/*
+Lisättäviä ominaisuuksia:
+- Automaagisesti päivittyvä ListView
+- Kokoomatiedot
+- Lenkin poistaminen -- tehty
+ */
+
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,8 +20,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Tämä luokka on graafinen käyttöliittymä ohjelmalle
@@ -25,39 +35,14 @@ public class SkiUI extends Application {
         // Luodaan BorderPane
         BorderPane borderPane = new BorderPane();
 
-        // Luodaan HBox
-        VBox vBox = new VBox(20);
-
-        // TextFieldien ja Labeleitten määrittelyä
-        Label kmLabel = new Label("Anna lenkin kilometrit:");
-        TextField kmTextField = new TextField();
-        kmTextField.setMaxWidth(100);
-        Label pvmLabel = new Label("Anna päivämäärä (VVVV-KK-PP)");
-        TextField pvmTextField = new TextField();
-        pvmTextField.setMaxWidth(100);
-        Label sijaintiLabel = new Label("Anna hiihtolenkin sijainti");
-        TextField sijaintiTextField = new TextField();
-        sijaintiTextField.setMaxWidth(100);
-        Label kommentitLabel = new Label("Kommentit hiihtolenkistä");
-        TextArea kommentitTextArea = new TextArea();
-        kommentitTextArea.setMaxWidth(200);
-
-        // vBoxin määrittelyä
-        vBox.getChildren().addAll(kmLabel, kmTextField, pvmLabel, pvmTextField, sijaintiLabel, sijaintiTextField,
-                kommentitLabel, kommentitTextArea);
-        vBox.setPadding(new Insets(10, 10, 10, 10));
-        vBox.setAlignment(Pos.CENTER_RIGHT);
-
         // HBoxin luominen
         HBox hBox = new HBox(20);
         Button uusiLenkki = new Button("Syötä uusi lenkki");
-        hBox.getChildren().add(uusiLenkki);
+        Button poistaLenkki = new Button("Poista lenkki");
+        Button yhteenveto = new Button("Yhteenveto");
+        hBox.getChildren().addAll(uusiLenkki, poistaLenkki, yhteenveto);
         hBox.setAlignment(Pos.CENTER);
         hBox.setPadding(new Insets(10, 10, 10, 10));
-
-        // Toiminnallisuus uusiLenkki-Buttonille
-
-
 
         // TextArean luominen
         TextArea tekstiAlueKeskelle = new TextArea();
@@ -65,36 +50,97 @@ public class SkiUI extends Application {
 
         // Luodaan näkymä eri hiihtolenkeille ohjelmaan. Samankaltainen ratkaisu löytyy viikon 7 tehtävästä 6
 
-
         ArrayList<String> lenkkiID = new ArrayList<String>();
         for (int i = 0; i < new SkiKilometerMain().lenkit.size(); i++) {
-            if (new SkiKilometerMain().lenkit.get(i).getPvm() != null) {
-                lenkkiID.add("Lenkki: " + new SkiKilometerMain().lenkit.get(i).getPvm());
-                System.out.println("Ifissä");
-            }
-            else {
-                lenkkiID.add("Lenkki: " + i);
-                System.out.println("Elsessä");
-            }
+            lenkkiID.add(i, "Lenkki " + (i + 1));
         }
-
+        
         ListView<String> lv = new ListView<>(FXCollections.observableArrayList(lenkkiID));
 
+        // uusiLenkki-Buttonin toiminnallisuus. Katsottu uuden ikkunan tekemiseen vinkkiä sivustolta:
+        // https://stackoverflow.com/questions/15041760/javafx-open-new-window
         uusiLenkki.setOnAction(e -> {
-            lenkkiID.addLast("str");
-            System.out.println("Pöö");
+
+            BorderPane borderPane1 = new BorderPane();
+            // Luodaan HBox
+            VBox vBox = new VBox(20);
+
+            // TextFieldien ja Labeleitten määrittelyä
+            Label kmLabel = new Label("Anna lenkin kilometrit:");
+            TextField kmTextField = new TextField();
+            kmTextField.setMaxWidth(100);
+            Label pvmLabel = new Label("Anna päivämäärä (VVVV-KK-PP)");
+            TextField pvmTextField = new TextField();
+            pvmTextField.setMaxWidth(100);
+            Label sijaintiLabel = new Label("Anna hiihtolenkin sijainti");
+            TextField sijaintiTextField = new TextField();
+            sijaintiTextField.setMaxWidth(100);
+            Label kommentitLabel = new Label("Kommentit hiihtolenkistä");
+            TextArea kommentitTextArea = new TextArea();
+            kommentitTextArea.setMaxWidth(200);
+
+            // vBoxin määrittelyä
+            vBox.getChildren().addAll(kmLabel, kmTextField, pvmLabel, pvmTextField, sijaintiLabel, sijaintiTextField,
+                    kommentitLabel, kommentitTextArea);
+            vBox.setPadding(new Insets(10, 10, 10, 10));
+            vBox.setAlignment(Pos.CENTER_RIGHT);
+
+            // aseta-Buttonin toiminnallisuus
+            Button aseta = new Button("Aseta tiedot");
+            aseta.setOnAction(event -> {
+                new SkiKilometerMain().uusiLenkkiListaan(new SkiKilometer(Double.parseDouble(kmTextField.getText()),
+                        LocalDate.parse(pvmTextField.getText()), sijaintiTextField.getText(), kommentitTextArea.getText()));
+            });
+
+            aseta.setAlignment(Pos.BASELINE_LEFT);
+            borderPane1.setCenter(aseta);
+            borderPane1.setRight(vBox);
+
+            Stage stage = new Stage();
+            stage.setTitle("Hiihtolenkin tiedot");
+            stage.setScene(new Scene(borderPane1, 500, 500));
+            stage.show();
         });
+
+        yhteenveto.setOnAction(e -> {
+            BorderPane borderPane2 = new BorderPane();
+            double total = 0;
+            for (int i = 0; i < new SkiKilometerMain().lenkit.size(); i++) {
+                total += new SkiKilometerMain().lenkit.get(i).getKilometrit();
+            }
+
+            DecimalFormat f = new DecimalFormat("##.00");
+            Label tiedot = new Label("Kilometrit yhteensä: " + total + "km\nLenkkejä yhteensä: " +
+                    new SkiKilometerMain().lenkit.size() + "\nKeskimääräinen lenkin pituus: " + 
+                    f.format(total / new SkiKilometerMain().lenkit.size()) + "km");
+
+            borderPane2.setCenter(tiedot);
+
+            Stage stage = new Stage();
+            Scene scene = new Scene(borderPane2, 300, 300);
+            stage.setTitle("Yhteenveto lenkeistä");
+            stage.setScene(scene);
+            stage.show();
+        });
+
         // Pitäisi saada ListView näyttämään uusi olio ListViewissä, kun painaa "Uusi lenkki" -buttonia.
         lv.getSelectionModel().selectedItemProperty().addListener(ov -> {
             for (String str : lv.getSelectionModel().getSelectedItems()) {
-
+                for (int i = 0; i < lenkkiID.size(); i++) {
+                    if(Objects.equals(str, ("Lenkki " + (i + 1)))){
+                        tekstiAlueKeskelle.setText(new SkiKilometerMain().lenkinTiedot(i));
+                        int finalI = i;
+                        poistaLenkki.setOnAction(eve -> {
+                            new SkiKilometerMain().poistaLenkki(finalI);
+                        });
+                    }
+                }
             }
         });
 
         // Osien asettelua BorderPaneen
         borderPane.setCenter(tekstiAlueKeskelle);
         borderPane.setLeft(lv);
-        borderPane.setRight(vBox);
         borderPane.setTop(hBox);
 
         Scene scene = new Scene(borderPane, 1000, 1000);

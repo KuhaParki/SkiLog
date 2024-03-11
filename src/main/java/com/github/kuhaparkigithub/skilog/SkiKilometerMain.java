@@ -3,7 +3,6 @@ package com.github.kuhaparkigithub.skilog;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Tässä luokassa on ohjelman toiminnallisuus määritelty, sekä pääohjelma.
@@ -15,7 +14,7 @@ public class SkiKilometerMain {
      */
     //public SkiKilometer[] lenkit = new SkiKilometer[lenkkienMaara];
 
-    public ArrayList<SkiKilometer> lenkit= new ArrayList<>();
+    public ArrayList<SkiKilometer> lenkit = new ArrayList<>();
     /**
      * Alustaja, jossa on mukana tiedoston lukeminen. Samankaltainen ratkaisu löytyy Pankkiautomaattiluokasta
      */
@@ -25,27 +24,18 @@ public class SkiKilometerMain {
             if (file.exists()) {
                 FileInputStream fis = new FileInputStream("lenkit.dat");
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                for (int i = 0; i < lenkkienMaara; i++) {
+                for (int i = 0; i < lenkit.size() + 1; i++) {
                     lenkit.add(i, (SkiKilometer) ois.readObject());
                 }
                 fis.close();
             }
             else {
-                for (int i = 0; i < 1; i++) {
-                    lenkit.add(i, new SkiKilometer(0, LocalDate.now(), "Tähän kirjoitetaan sijainti",
-                            "Tähän kirjoitetaan kommentit lenkistä"));
-                    if (lenkkienMaara != 1) {
-                        lenkkienMaara++;
-                    }
-                    tiedostonKirjoitus();
-                }
-                System.out.println("Et ole vielä syöttänyt tietoja ohjelmaan");
-
+                System.out.println("Lenkkejä ei vielä ole");
             }
 
         }
         catch (IOException e) {
-            System.out.println("Tiedoston lukemisessa ongelmia");
+            //System.out.println("Tiedoston lukemisessa ongelmia");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -140,15 +130,27 @@ public class SkiKilometerMain {
 
     /**
      * Metodi tulostaa halutun lenkin tiedot
+     *
      * @param i kuvastaa ArrayListin indeksiä
+     * @return
      */
-    public void lenkinTiedot(int i) {
+    public String lenkinTiedot(int i) {
         System.out.println("Lenkin tiedot: " + this.lenkit.get(i).getKilometrit() + " " + this.lenkit.get(i).getPvm() +
          " " + this.lenkit.get(i).getSijainti() +  " " +  this.lenkit.get(i).getKommentit());
+        return "Lenkin tiedot:\nKilometrit: " + this.lenkit.get(i).getKilometrit() + "km\nPäivämäärä: " +
+                this.lenkit.get(i).getPvm() + "\nSijainti: " + this.lenkit.get(i).getSijainti() +
+                "\nKommentit: " +  this.lenkit.get(i).getKommentit();
     }
 
     public void uusiLenkkiListaan(SkiKilometer x) {
         lenkit.addLast(new SkiKilometer(x));
+        tiedostonKirjoitus();
+    }
+
+    public void poistaLenkki(int i) {
+        lenkit.remove(i);
+        tiedostonKirjoitus();
+        System.out.println("Lenkki poistettu");
     }
 
     /**
@@ -158,11 +160,6 @@ public class SkiKilometerMain {
     public static void main(String[] args) {
         SkiKilometerMain olio = new SkiKilometerMain();
 
-        olio.lenkinTiedot(0);
-
-        System.out.println(olio.lenkit.getFirst().getKommentit());
-
-        System.out.println(olio.lenkit.size());
     }
 }
 
