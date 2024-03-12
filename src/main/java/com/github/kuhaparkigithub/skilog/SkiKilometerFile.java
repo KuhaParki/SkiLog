@@ -1,13 +1,12 @@
 package com.github.kuhaparkigithub.skilog;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 /**
  * Tässä luokassa on ohjelman toiminnallisuus ja tiedostonkäsittely määritelty.
  */
-public class SkiKilometerObject {
+public class SkiKilometerFile {
 
     /**
      * Kenttänä SkiKilometer luokan ArrayList-tyyppinen olio
@@ -17,9 +16,10 @@ public class SkiKilometerObject {
 
     /**
      * Alustaja, jossa on mukana tiedoston lukeminen. Samankaltainen ratkaisu löytyy Pankkiautomaattiluokasta. Metodissa
-     * mukana poikkeustenkäsittelyä. Poikkeustenkäsittelyä voi odottaa tapahtuvan tiedoston lukemisen aikana.
+     * mukana poikkeustenkäsittelyä. Poikkeustenkäsittelyä voi odottaa tapahtuvan tiedoston lukemisen aikana. Tässä
+     * metodissa käsiteltävän tiedoston nimi on lenkit.dat ja siihen voi tallentaa olioita.
      */
-    public SkiKilometerObject() {
+    public SkiKilometerFile() {
         try {
             File file = new File("lenkit.dat");
             if (file.exists()) {
@@ -35,7 +35,7 @@ public class SkiKilometerObject {
             }
 
         }
-        catch (IOException e) {
+        catch (IOException ignored) {
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -44,72 +44,9 @@ public class SkiKilometerObject {
 
 
     /**
-     * Palauttaa lenkit-taulukon, jossa lenkit kirjattuna
-     * @return palauttaa taulukon
-     */
-    public ArrayList<SkiKilometer> getLenkit() {
-        return lenkit;
-    }
-
-
-    /**
-     * Metodi summaa kilometrit yhteen SkiKilometer-luokan lisaaKilometriSummaan-metodin avulla
-     * @param i kokonaisluku taulukon indeksille
-     * @param d desimaaliluku kilometrimäärälle
-     */
-    public void summaa(int i, double d) {
-        this.lenkit.get(i).lisaaKilometriSummaan(d);
-        tiedostonKirjoitus();
-    }
-
-
-    /**
-     * Asettaa olion kilometrimäärän SkiKilometer-luokan set-metodin avulla
-     * @param i kokonaisluku taulukon indeksille
-     * @param d desimaaliluku kilometrimäärälle
-     */
-    public void kilometri(int i, double d) {
-        this.lenkit.get(i).setKilometrit(d);
-        tiedostonKirjoitus();
-    }
-
-
-    /**
-     * Asettaa olion päivämäärän SkiKilometer-luokan set-metodin avulla
-     * @param i kokonaisluku taulukon indeksille
-     * @param da päivämäärä
-     */
-    public void paivamaara(int i, LocalDate da) {
-        this.lenkit.get(i).setPvm(da);
-        tiedostonKirjoitus();
-    }
-
-
-    /**
-     * Asettaa olion sijainnin SkiKilometer-luokan set-metodin avulla
-     * @param i kokonaisluku taulukon indeksille
-     * @param s Merkkijono sijainnille
-     */
-    public void sijainti(int i, String s) {
-        this.lenkit.get(i).setSijainti(s);
-        tiedostonKirjoitus();
-    }
-
-
-    /**
-     * Asettaa olion kommentin SkiKilometer-luokan set-metodin avulla
-     * @param i kokonaisluku taulukon indeksille
-     * @param s Merkkijono kommentille
-     */
-    public void kommentti(int i, String s) {
-        this.lenkit.get(i).setKommentit(s);
-        tiedostonKirjoitus();
-    }
-
-
-    /**
      * Metodi kirjoittaa taulukon tiedostoon. Samankaltainen metodi Pankkiautomaattiluokassa. Metodissa käytetään
-     * poikkeustenkäsittelyä, joka voi tapahtua tiedostoonkirjoittamisen aikana.
+     * poikkeustenkäsittelyä, joka voi tapahtua tiedostoonkirjoittamisen aikana. Metodi tallentaa oliotietoa tiedostoon
+     * nimeltä lenkit.dat
      */
     public void tiedostonKirjoitus() {
         try {

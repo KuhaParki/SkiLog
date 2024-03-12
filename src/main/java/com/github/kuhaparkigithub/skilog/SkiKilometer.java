@@ -133,11 +133,6 @@ public class SkiKilometer implements Serializable {
      * @param maara asetetut hiihtokilometrit desimaalilukuna
      */
     public void lisaaKilometriSummaan(double maara) {
-        if (maara > 0) {
             this.totalKm += maara;
-        }
-        else {
-            System.out.println("Kilometrimäärän tulee olla positiivinen!");
-        }
     }
 }

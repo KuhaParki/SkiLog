@@ -34,7 +34,8 @@ public class SkiUI extends Application {
         BorderPane borderPane = new BorderPane();
 
 
-        // HBoxin luominen
+        // HBoxin luominen. Asetetaan HBoxiin kolme Buttonia, joilla voi syöttää uuden lenkin, poistaa lenkin ja
+        // saada yhteenvedon lenkeistä
         HBox hBox = new HBox(20);
         Button uusiLenkki = new Button("Syötä uusi lenkki");
         Button poistaLenkki = new Button("Poista lenkki");
@@ -44,7 +45,8 @@ public class SkiUI extends Application {
         hBox.setPadding(new Insets(10, 10, 10, 10));
 
 
-        // TextArean luominen
+        // TextArean luominen. Tässä näytetään tiedot hiihtolenkistä keskellä näyttöä. Se on asetettu niin, ettei sitä
+        // voi muokata graafisesta käyttöliittymästä käsin
         TextArea tekstiAlueKeskelle = new TextArea();
         tekstiAlueKeskelle.setEditable(false);
         tekstiAlueKeskelle.setMaxSize(500, 800);
@@ -53,20 +55,23 @@ public class SkiUI extends Application {
         // Luodaan näkymä eri hiihtolenkeille ohjelmaan. Mallin ObservableListiin katsoin Javan manuaalista seuraavasta
         // linkistä: https://openjfx.io/javadoc/11/javafx.controls/javafx/scene/control/ListView.html
         ObservableList<String> lenkkiID = FXCollections.observableArrayList();
-        for (int i = 0; i < new SkiKilometerObject().lenkit.size(); i++) {
+        for (int i = 0; i < new SkiKilometerFile().lenkit.size(); i++) {
             lenkkiID.add(i, "Lenkki " + (i + 1));
         }
 
-
+        // Asetetaan ListView olioon ObservableList, joka on ylempänä määritelty. Näytetään lista ohjelmassa niin, että
+        // kun lenkkiID:n elementti valitaan ListViewistä, niin näytetään samassa indeksissä olevan lenkin tiedot
+        // lenkit-ArrayLististä. Jos lenkki on valitty, se voidaan sitten myös poistaa poistaLenkki-Buttonilla, jonka
+        // toiminnallisuus on määritelty kuuntelijan sisällä.
         ListView<String> lv = new ListView<String>(lenkkiID);
         lv.getSelectionModel().selectedItemProperty().addListener(ov -> {
             for (String str : lv.getSelectionModel().getSelectedItems()) {
                 for (int i = 0; i < lenkkiID.size(); i++) {
                     if(Objects.equals(str, ("Lenkki " + (i + 1)))){
-                        tekstiAlueKeskelle.setText(new SkiKilometerObject().lenkinTiedot(i));
+                        tekstiAlueKeskelle.setText(new SkiKilometerFile().lenkinTiedot(i));
                         int finalI = i;
                         poistaLenkki.setOnAction(eve -> {
-                            new SkiKilometerObject().poistaLenkki(finalI);
+                            new SkiKilometerFile().poistaLenkki(finalI);
                             lenkkiID.remove("Lenkki " + (finalI + 1));
                         });
                     }
@@ -77,6 +82,7 @@ public class SkiUI extends Application {
 
         // uusiLenkki-Buttonin toiminnallisuus. Katsottu uuden ikkunan tekemiseen vinkkiä sivustolta:
         // https://stackoverflow.com/questions/15041760/javafx-open-new-window
+        // Kun uusiLenkki-Buttonia painetaan, ohjelma antaa käyttäjälle uuden ikkunan, jossa tiedot voi asettaa.
         uusiLenkki.setOnAction(e -> {
             Stage stage = new Stage();
 
@@ -104,7 +110,10 @@ public class SkiUI extends Application {
             vBox.setPadding(new Insets(10, 10, 10, 10));
             vBox.setAlignment(Pos.CENTER_RIGHT);
 
-            // aseta-Buttonin toiminnallisuus
+
+            // aseta-Buttonin toiminnallisuus. aseta-Buttonilla voi asettaa hiihtolenkin tiedot ohjelmaan, mutta vain
+            // jos kilometritieto on numeraalinen, päivämäärä on syötetty oikein ja kaikkiin kenttiin on asetettu tietoa.
+            // Kun asettaminen on onnistuneesti tehty, ohjelma laittaa ikkunaan tekstin: "Asetus onnistui, voit sulkea ikkunan"
             Button aseta = new Button("Aseta tiedot");
             aseta.setOnAction(event -> {
                 try {
@@ -116,10 +125,16 @@ public class SkiUI extends Application {
                         virhe.setTextFill(Color.RED);
                         borderPane1.setBottom(virhe);
                     }
+                    else if (Double.parseDouble(kmTextField.getText()) < 0) {
+                        Label virhe = new Label("Kilometritiedon tulee olla positiivinen luku!");
+                        virhe.setFont(Font.font(20));
+                        virhe.setTextFill(Color.RED);
+                        borderPane1.setBottom(virhe);
+                    }
                     else {
-                        new SkiKilometerObject().uusiLenkkiListaan(new SkiKilometer(Double.parseDouble(kmTextField.getText()),
+                        new SkiKilometerFile().uusiLenkkiListaan(new SkiKilometer(Double.parseDouble(kmTextField.getText()),
                                 LocalDate.parse(pvmTextField.getText()), sijaintiTextField.getText(), kommentitTextArea.getText()));
-                        lenkkiID.addLast("Lenkki " + (new SkiKilometerObject().lenkit.size()));
+                        lenkkiID.addLast("Lenkki " + (new SkiKilometerFile().lenkit.size()));
                         BorderPane borderPane3 = new BorderPane();
                         Label asetusOnnistui = new Label("Asetus onnistui, voit sulkea ikkunan");
                         borderPane3.setCenter(asetusOnnistui);
@@ -159,14 +174,14 @@ public class SkiUI extends Application {
         yhteenveto.setOnAction(e -> {
             BorderPane borderPane2 = new BorderPane();
             double total = 0;
-            for (int i = 0; i < new SkiKilometerObject().lenkit.size(); i++) {
-                total += new SkiKilometerObject().lenkit.get(i).getKilometrit();
+            for (int i = 0; i < new SkiKilometerFile().lenkit.size(); i++) {
+                total += new SkiKilometerFile().lenkit.get(i).getKilometrit();
             }
 
             DecimalFormat f = new DecimalFormat("##.00");
             Label tiedot = new Label("Kilometrit yhteensä: " + total + "km\nLenkkejä yhteensä: " +
-                    new SkiKilometerObject().lenkit.size() + "\nKeskimääräinen lenkin pituus: " +
-                    f.format(total / new SkiKilometerObject().lenkit.size()) + "km");
+                    new SkiKilometerFile().lenkit.size() + "\nKeskimääräinen lenkin pituus: " +
+                    f.format(total / new SkiKilometerFile().lenkit.size()) + "km");
 
             borderPane2.setCenter(tiedot);
 
